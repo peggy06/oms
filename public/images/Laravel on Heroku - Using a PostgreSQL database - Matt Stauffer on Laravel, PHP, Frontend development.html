@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<!-- saved from url=(0074)https://mattstauffer.co/blog/laravel-on-heroku-using-a-postgresql-database -->
+<html class="no-js"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+        <title>Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development</title>
+
+        <link rel="home" href="https://mattstauffer.co/">
+
+		<link href="https://mattstauffer.co/blog/feed.atom" type="application/atom+xml" rel="alternate" title="Mattstauffer.co Atom Feed">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="mobile-web-app-capable" content="yes">
+
+		<meta property="og:site_name" content="MattStauffer.co">
+						
+		<meta property="og:title" content="Laravel on Heroku - Using a PostgreSQL database">
+		<meta property="og:locale" content="en_US">
+
+        				<link rel="author" href="https://plus.google.com/+MattStauffer1337">
+		<meta name="description" content="In the last two posts we got Laravel up and running on Heroku, and then connected it with MySQL. But Heroku natively prefers PostgreSQL,...">
+	<meta property="og:description" content="In the last two posts we got Laravel up and running on Heroku, and then connected it with MySQL. But Heroku natively prefers PostgreSQL, and you&#39;ll find that PostgreSQL can do everything MySQL can do, and a lot more. So let&#39;s get it running on our Laravel Heroku app.   Adding PostgreSQL to your Heroku app #   First, navigate to your app directory and add PostgreSQL as a Heroku add-on (if you haven&#39;t followed the first tutorial, you&#39;ll need to do that first to install the Heroku toolset, get this Laravel app connected to a Heroku app, etc.):   $ heroku addons:add heroku-postgresql:dev   You should see output like this:   Adding heroku-postgresql:dev on app-name-here... done, v14 (free) Attached as HEROKU_POSTGRESQL_COLOR_URL Database has been created and is available  ! This database is empty. If upgrading, you can transfer  ! data from another database with pgbackups:restore. Use `heroku addons:docs heroku-postgresql` to view documentation.   The environment variable for your PostgreSQL database URL has a COLOR variable in the name itself: HEROKU_POSTGRESQL_PINK_URL, HEROKU_POSTGRESQL_BLUE_URL, etc... and depending on the server you&#39;re on, that color may be different. That means you can&#39;t necessarily rely on the name of that environment variable always being the same, so you want to be sure to not rely on the HEROKU_POSTGRESQL_COLOR_URL for your database configurations. Read on for how to handle it instead.   At any point, you can find both the name of your PostgreSQL variable and its value by running the following:   $ heroku config | grep HEROKU_POSTGRESQL   You should see something like the following:   HEROKU_POSTGRESQL_RED_URL: postgres://user3123:passkja83kd8@ec2-117-21-174-214.compute-1.amazonaws.com:6212/db982398   If you check out your heroku config, you should now see that you have a DATABASE_URL that&#39;s set to the same value as the HEROKU_POSTGRESQL_COLOR_URL. That is the environment variable you want to work from.   On apps with multiple databases, or if you didn&#39;t get the DATABASE_URL set properly for some reason, you can promote a particular server to be the primary database:   $ heroku pg:promote HEROKU_POSTGRESQL_RED_URL   At this point your database should be up and running. Now, let&#39;s edit your Laravel config to point to the PostgreSQL database.   Configuring Laravel to use PostgreSQL #   Once again, if this is real app, you&#39;re going to want to only be making these changes in your production configuration settings, but for now we&#39;re just hacking at a dummy app.    First, change the value of &#39;default&#39; in app/config/database.php to &#39;pgsql&#39;.       &#39;default&#39; =&amp;gt; &#39;pgsql&#39;,   Then, just like we did with MySQL, set the following at the top of your database.php:   $url = parse_url(getenv(&quot;DATABASE_URL&quot;));  $host = $url[&quot;host&quot;]; $username = $url[&quot;user&quot;]; $password = $url[&quot;pass&quot;]; $database = substr($url[&quot;path&quot;], 1);   Then change your pgsql entry in that same file to be the following:       &#39;pgsql&#39; =&amp;gt; array(         &#39;driver&#39;   =&amp;gt;...">
+
+
+        <link rel="stylesheet" href="./Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development_files/journal.bootswatch.css">
+        <link rel="stylesheet" href="./Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development_files/prism.css">
+        <link rel="stylesheet" href="./Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development_files/main.css">
+    <script type="text/javascript" charset="utf-8" async="" src="./Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development_files/button.09a4c69b9e9879b3a066b7ecd72136d2.js.download"></script></head>
+    <body>
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="https://mattstauffer.co/">MattStauffer.co</a>
+                </div>
+
+                <div class="collapse navbar-collapse navbar-ex1-collapse">
+                    <ul class="nav navbar-nav">
+                    <li><a href="https://mattstauffer.co/blog" class="active">Blog</a></li>
+                    <li><a href="https://mattstauffer.co/projects">Projects</a></li>
+                    <li><a href="https://mattstauffer.co/talks">Talks</a></li>
+                    <li><a href="https://mattstauffer.co/podcasts">Podcasts</a></li>
+                    <li><a href="https://mattstauffer.co/newsletter">Newsletter</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+
+            <div class="row">
+                <div class="col-md-10 col-lg-8 article">
+	<article>
+		<h1>Laravel on Heroku - Using a PostgreSQL database</h1>
+		<p class="article-metadata">Posted on May 02, 2014 | By Matt Stauffer</p>
+        
+                <blockquote class="series-list">
+            <p>(This is part of a series of posts on <a href="https://mattstauffer.co/blog/series/laravel-on-heroku">Laravel on Heroku</a>. Check back soon for more.)</p>
+            <ol>
+                                
+                                    <li>
+                                                                                <a href="https://mattstauffer.co/blog/installing-a-laravel-app-on-heroku">Installing a Laravel app on Heroku</a>
+                                                                        </li>
+                                    <li>
+                                                                                <a href="https://mattstauffer.co/blog/laravel-on-heroku-using-a-mysql-database">Laravel on Heroku - Using a MySQL database</a>
+                                                                        </li>
+                                    <li>
+                                                    <strong>                            <a href="https://mattstauffer.co/blog/laravel-on-heroku-using-a-postgresql-database">Laravel on Heroku - Using a PostgreSQL database</a>
+                            </strong>                                            </li>
+                                    <li>
+                                                                                <a href="https://mattstauffer.co/blog/laravel-on-heroku-using-a-buildpack-locally-to-mimic-your-heroku-environment-nginx">Laravel on Heroku -  Using a Buildpack locally to mimic your Heroku environment (Nginx)</a>
+                                                                        </li>
+                            </ol>
+        </blockquote>
+
+        
+        <p>In the last two posts we got Laravel up and running on Heroku, and then connected it with MySQL. But Heroku natively prefers <a href="http://www.postgresql.org/">PostgreSQL</a>, and you'll find that PostgreSQL can do everything MySQL can do, and a lot more. So let's get it running on our Laravel Heroku app.</p>
+<h2 id="adding-postgresql-to-your-heroku-app">Adding PostgreSQL to your Heroku app <a class="anchor" href="https://mattstauffer.co/blog/laravel-on-heroku-using-a-postgresql-database#adding-postgresql-to-your-heroku-app" title="Adding PostgreSQL to your Heroku app">#</a></h2>
+<p>First, navigate to your app directory and add PostgreSQL as a Heroku add-on (if you haven't followed the first tutorial, you'll need to do that first to install the Heroku toolset, get this Laravel app connected to a Heroku app, etc.):</p>
+<pre class="language-bash"><code data-language="language-bash" class="language-bash">$ heroku addons:add heroku-postgresql:dev</code></pre>
+<p>You should see output like this:</p>
+<pre class="language-bash"><code data-language="language-bash" class="language-bash">Adding heroku-postgresql:dev on app-name-here... done, v14 (free)
+Attached as HEROKU_POSTGRESQL_COLOR_URL
+Database has been created and is available
+ ! This database is empty. If upgrading, you can transfer
+ ! data from another database with pgbackups:restore.
+Use `heroku addons:docs heroku-postgresql` to view documentation.</code></pre>
+<p>The environment variable for your PostgreSQL database URL has a <code class=" language-markup">COLOR</code> variable in the name itself: <code class=" language-markup">HEROKU_POSTGRESQL_PINK_URL</code>, <code class=" language-markup">HEROKU_POSTGRESQL_BLUE_URL</code>, etc... and depending on the server you're on, that color may be different. That means you can't necessarily rely on the name of that environment variable always being the same, so you want to be sure to <em>not rely on the <code class=" language-markup">HEROKU_POSTGRESQL_COLOR_URL</code> for your database configurations.</em> Read on for how to handle it instead.</p>
+<p>At any point, you can find both the name of your PostgreSQL variable and its value by running the following:</p>
+<pre class="language-bash"><code data-language="language-bash" class="language-bash">$ heroku config | grep HEROKU_POSTGRESQL</code></pre>
+<p>You should see something like the following:</p>
+<pre class="language-bash"><code data-language="language-bash" class="language-bash">HEROKU_POSTGRESQL_RED_URL: postgres://user3123:passkja83kd8@ec2-117-21-174-214.compute-1.amazonaws.com:6212/db982398</code></pre>
+<p>If you check out your <code class=" language-markup">heroku config</code>, you should now see that you have a <code class=" language-markup">DATABASE_URL</code> that's set to the same value as the <code class=" language-markup">HEROKU_POSTGRESQL_COLOR_URL</code>. <em>That</em> is the environment variable you want to work from.</p>
+<p>On apps with multiple databases, or if you didn't get the <code class=" language-markup">DATABASE_URL</code> set properly for some reason, you can promote a particular server to be the primary database:</p>
+<pre class="language-bash"><code data-language="language-bash" class="language-bash">$ heroku pg:promote HEROKU_POSTGRESQL_RED_URL</code></pre>
+<p>At this point your database should be up and running. Now, let's edit your Laravel config to point to the PostgreSQL database.</p>
+<h3 id="configuring-laravel-to-use-postgresql">Configuring Laravel to use PostgreSQL <a class="anchor" href="https://mattstauffer.co/blog/laravel-on-heroku-using-a-postgresql-database#configuring-laravel-to-use-postgresql" title="Configuring Laravel to use PostgreSQL">#</a></h3>
+<p>Once again, if this is real app, you're going to want to only be making these changes in your production configuration settings, but for now we're just hacking at a dummy app. </p>
+<p>First, change the value of <code class=" language-markup">'default'</code> in <code class=" language-markup">app/config/database.php</code> to <code class=" language-markup">'pgsql'</code>.</p>
+<pre class=" language-php"><code data-language="language-php" class=" language-php">    <span class="token string">'default'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'pgsql'</span><span class="token punctuation">,</span></code></pre>
+<p>Then, just like we did with MySQL, set the following at the top of your database.php:</p>
+<pre class=" language-php"><code data-language="language-php" class=" language-php"><span class="token variable">$url</span> <span class="token operator">=</span> <span class="token function">parse_url<span class="token punctuation">(</span></span><span class="token function">getenv<span class="token punctuation">(</span></span><span class="token string">"DATABASE_URL"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token variable">$host</span> <span class="token operator">=</span> <span class="token variable">$url</span><span class="token punctuation">[</span><span class="token string">"host"</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token variable">$username</span> <span class="token operator">=</span> <span class="token variable">$url</span><span class="token punctuation">[</span><span class="token string">"user"</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token variable">$password</span> <span class="token operator">=</span> <span class="token variable">$url</span><span class="token punctuation">[</span><span class="token string">"pass"</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token variable">$database</span> <span class="token operator">=</span> <span class="token function">substr<span class="token punctuation">(</span></span><span class="token variable">$url</span><span class="token punctuation">[</span><span class="token string">"path"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p>Then change your <code class=" language-markup">pgsql</code> entry in that same file to be the following:</p>
+<pre class=" language-php"><code data-language="language-php" class=" language-php">    <span class="token string">'pgsql'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token keyword">array</span><span class="token punctuation">(</span>
+        <span class="token string">'driver'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'pgsql'</span><span class="token punctuation">,</span>
+        <span class="token string">'host'</span>     <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token variable">$host</span><span class="token punctuation">,</span>
+        <span class="token string">'database'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token variable">$database</span><span class="token punctuation">,</span>
+        <span class="token string">'username'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token variable">$username</span><span class="token punctuation">,</span>
+        <span class="token string">'password'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token variable">$password</span><span class="token punctuation">,</span>
+        <span class="token string">'charset'</span>  <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'utf8'</span><span class="token punctuation">,</span>
+        <span class="token string">'prefix'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">''</span><span class="token punctuation">,</span>
+        <span class="token string">'schema'</span>   <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'public'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">)</span><span class="token punctuation">,</span></code></pre>
+<p>That's it! Commit and push and migrate:</p>
+<pre class="language-bash"><code data-language="language-bash" class="language-bash">$ git add .
+$ git commit -m "Convert to use Heroku PostgreSQL database"
+$ git push heroku master
+$ heroku run php /app/artisan migrate</code></pre>
+<p>Check out your Heroku URL in the browser, and you should see the app running just like it was when it was MySQL:</p>
+<pre class=" language-markup"><code class=" language-markup">[]</code></pre>
+<p>Congratulations! You're now a Laravel + Heroku + database pro.</p>
+<h2 id="notes">Notes <a class="anchor" href="https://mattstauffer.co/blog/laravel-on-heroku-using-a-postgresql-database#notes" title="Notes">#</a></h2>
+<ul>
+<li>Heroku has a page dedicated to helping you <a href="https://devcenter.heroku.com/articles/heroku-mysql">migrate your data from MySQL to PostgreSQL</a></li>
+</ul>
+
+        <hr>
+
+        <div class="row" style="font-style: italic">
+            <div class="share-buttons col-md-6">
+                Share:
+                <!-- Facebook -->
+                <a href="http://www.facebook.com/sharer.php?u=https://mattstauffer.co/blog/laravel-on-heroku-using-a-postgresql-database" target="_blank"><img src="./Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development_files/share-facebook.png" alt="Facebook"></a>
+
+                <!-- Twitter -->
+                <a href="http://twitter.com/share?url=https://mattstauffer.co/blog/laravel-on-heroku-using-a-postgresql-database&amp;text=Laravel%20on%20Heroku%20-%20Using%20a%20PostgreSQL%20database" target="_blank"><img src="./Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development_files/share-twitter.png" alt="Twitter"></a>
+
+                <!-- LinkedIn -->
+                <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://mattstauffer.co/blog/laravel-on-heroku-using-a-postgresql-database" target="_blank"><img src="./Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development_files/share-linkedin.png" alt="LinkedIn"></a>
+            </div>
+            <div class="col-md-6">
+                <p>Comments? I'm <a href="http://twitter.com/stauffermatt">@stauffermatt</a> on Twitter</p>
+            </div>
+        </div>
+
+                <hr>
+        <p>Tags:
+                                            <a href="https://mattstauffer.co/tags/php">php</a>
+                            |                <a href="https://mattstauffer.co/tags/heroku">heroku</a>
+                            |                <a href="https://mattstauffer.co/tags/laravel">laravel</a>
+                            |                <a href="https://mattstauffer.co/tags/postgresql">postgresql</a>
+                    </p>
+        	</article>
+</div>
+								<div class="col-lg-3 col-lg-push-1 col-md-2 right-rail">
+					<div class="rail-bio">
+						<img src="./Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development_files/mattstauffer-headshot.jpg" alt="Matt Stauffer headshot" class="rail-bio__headshot">
+						<p>Hi, I'm <strong>Matt Stauffer</strong>.</p>
+						<p>I'm partner &amp; technical director at <a href="http://tighten.co/?utm_source=mattstauffer.co&amp;utm_medium=rail-bio">Tighten Co.</a></p>
+                        <p>You can find me on Twitter at <a href="http://twitter.com/stauffermatt">@stauffermatt</a></p>
+                        <p style="margin-top: 1.5em;"><iframe id="twitter-widget-0" scrolling="no" frameborder="0" allowtransparency="true" class="twitter-follow-button twitter-follow-button-rendered" title="Twitter Follow Button" src="./Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development_files/follow_button.2dbd32894063b53338de1c1d4a747ea9.en.html" style="position: static; visibility: visible; width: 225px; height: 20px;" data-screen-name="stauffermatt"></iframe>
+                        <script src="./Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development_files/analytics.js.download"></script><script id="twitter-wjs" src="./Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development_files/widgets.js.download"></script><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></p>
+					</div>
+
+                    <hr>
+
+                    <div class="rail-book">
+                        <p><strong>Like what you're reading?</strong></p>
+                        <p>I wrote an entire 400+ page book for O'Reilly: <a href="http://shop.oreilly.com/product/0636920044116.do">Laravel: Up and Running</a>.</p>
+                        <p>You can <a href="http://shop.oreilly.com/product/0636920044116.do">pre-order the ebook or print book today</a>.</p>
+                        <a href="http://shop.oreilly.com/product/0636920044116.do"><img src="./Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development_files/laravel-up-and-running-matt-stauffer.png" class="rail-book__image"></a>
+                    </div>
+                    <hr>
+
+                    <div class="rail-email-signup">
+                        <form action="https://tightenco.createsend.com/t/d/s/oujykd/" method="post" id="subForm" class="form-inline" accept-charset="utf-8">
+                            <p style="font-weight: bold;">Subscribe to my newsletter for more content like this <em>and</em> special newsletter-only posts:</p>
+                            <label for="email" class="sr-only">Email</label>
+                            <input type="email" name="cm-oujykd-oujykd" id="email" class="form-control" placeholder="Your Email..." required="">
+                            <input type="submit" name="submit" id="submit" value="Sign me up!" class="btn btn-primary">
+                        </form>
+                    </div>
+				</div>
+				            </div>
+
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <p>
+				© 2016 Matt Stauffer &nbsp;•&nbsp; <a href="http://twitter.com/stauffermatt">@stauffermatt</a> &nbsp;•&nbsp; <a href="https://mattstauffer.co/blog/feed.atom">RSS</a> &nbsp;•&nbsp; Like what I write? Hire <a href="http://tighten.co/?utm_source=mattstauffer.co&amp;utm_medium=footer">Tighten</a> and we can work together
+                </p>
+        </div>
+        </footer>
+
+        <script src="./Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development_files/jquery.js.download"></script>
+        <script src="./Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development_files/bootstrap.js.download"></script>
+        <script src="./Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development_files/main.js.download"></script>
+        <script src="./Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development_files/prism.js.download"></script>
+                <script>
+            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+            e.src='//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+            ga('create','UA-40114814-1');ga('send','pageview');
+        </script>
+            
+
+<iframe id="rufous-sandbox" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" style="position: absolute; visibility: hidden; display: none; width: 0px; height: 0px; padding: 0px; border: none;" src="./Laravel on Heroku - Using a PostgreSQL database - Matt Stauffer on Laravel, PHP, Frontend development_files/saved_resource.html"></iframe></body></html>

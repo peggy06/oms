@@ -1,0 +1,80 @@
+body .frontpage{
+    background-color: #e2e2e2;
+}
+.text-online{
+    color: #4ecd23;
+}
+
+.nav-users{
+    background-color: #6c1f1f !important;
+    overflow: visible;
+}
+.custom>li>a{
+    color: #fff;
+}
+.custom>li>a:hover{
+    background-color: #500708;
+}
+
+.custom .open>a,.custom .open>a:focus,.custom .open>a:hover{
+    background-color: #500708;
+}
+
+.loadingIMG{
+    position: absolute;
+    z-index: 100;
+    opacity: 0.8;
+    overflow: visible;
+    width: 100%;
+}
+
+.navbar-brand{
+    margin-top: 0px !important;
+    padding-top: 0px !important;
+    padding-bottom: 15px !important;
+    margin-bottom: 10px !important;
+}
+
+.nav>ul
+
+.badge{
+    background-color: #289afd !important;
+}
+
+.kbd{
+    background-color: #289afd !important;
+}
+
+.kbd-default{
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+.dropdown-scroll{
+    height: 450px;
+}
+
+.legal{
+    background-color: #fff;
+    font-family: "Times New Roman", Times, serif;
+}
+
+.margin-default{
+    padding: 72px 90px 72px 90px;
+    /*top&bottom: 1in, left&right: 1.25in*/
+}
+
+.logo{
+    position: absolute;
+    top: 90px;
+    left: 160px;
+}
+
+.tele-type{
+    font-family: monospace;
+}
+
+.docu-table tr td{
+    padding:10px;
+}
