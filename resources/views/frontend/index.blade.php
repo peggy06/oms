@@ -84,7 +84,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div style="border: solid 2px #e2e2e2;background-color: #fff;padding: 10px">
-                                    <h4>Register...</h4>
+                                    <h4>Register Now...</h4>
                                     @include('frontend.templates.reg-form')
                                 </div>
                             </div>
